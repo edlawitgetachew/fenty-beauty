@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout - Fenty Beauty</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <div class="top-banner">
+    <div class="container"><p class="text-center text-sm">Free Standard shipping to Ethiopia over Br11668</p></div>
+  </div>
+  <nav class="navbar">
+    <div class="container">
+      <div class="navbar-content">
+        <div class="navbar-left"><span class="flag-icon">🇪🇹</span><span class="country-selector">Ethiopia | English</span></div>
+        <a href="index.html" class="logo">FENTY BEAUTY</a>
+        <div class="navbar-actions">
+          <button class="icon-btn" aria-label="Search"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg></button>
+          <button class="icon-btn" aria-label="Wishlist"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg></button>
+          <a href="cart.html" class="cart-link" aria-label="Cart"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg></a>
+        </div>
+      </div>
+      <div class="navbar-links">
+        <a href="category.html?category=Makeup" class="nav-link">Makeup</a>
+        <a href="category.html?category=Skincare" class="nav-link">Skincare</a>
+        <a href="index.html#products" class="nav-link">Discover</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-8">
+    <h1 class="text-4xl font-bold mb-8">Checkout</h1>
+    <div id="checkout-root">
+      <p class="text-gray-600">Loading...</p>
+    </div>
+  </main>
+
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-section"><h3>STAY POSTED</h3><p class="text-sm mb-6">Keep up with all things Fenty Beauty.</p><a href="index.html" class="text-2xl font-bold">FENTY BEAUTY</a></div>
+        <div class="footer-section"><h3>CUSTOMER SERVICE</h3><p class="text-sm mb-2"><a href="mailto:customerservice@fentybeauty.com">customerservice@fentybeauty.com</a></p></div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="container">
+        <div class="footer-bottom-content">
+          <div class="flex items-center gap-2"><span>🇪🇹</span><span>Ethiopia | English</span></div>
+          <div class="footer-links"><a href="#">Privacy</a><a href="#">Terms of Use</a></div>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <script src="js/data.js"></script>
+  <script src="js/main.js"></script>
+  <script>
+    (function() {
+      var cart = getCart();
+      var products = [];
+      var total = 0;
+      for (var i = 0; i < cart.length; i++) {
+        var p = getProductById(cart[i].productId);
+        if (p) {
+          var qty = cart[i].quantity || 1;
+          products.push({ name: p.name, price: p.price, quantity: qty, lineTotal: p.price * qty });
+          total += p.price * qty;
+        }
+      }
+      var root = document.getElementById('checkout-root');
+      if (products.length === 0) {
+        root.innerHTML = '<p class="text-gray-600 mb-4">Your cart is empty.</p><a href="index.html" class="btn-primary">Continue Shopping</a>';
+        return;
+      }
+      root.innerHTML = '<div class="checkout-grid">' +
+        '<div class="checkout-form">' +
+        '<form id="checkout-form">' +
+        '<h2 class="text-2xl font-semibold mb-4">Shipping Information</h2>' +
+        '<div class="form-group"><label>Full Name</label><input type="text" name="name" required></div>' +
+        '<div class="form-group"><label>Email</label><input type="email" name="email" required></div>' +
+        '<div class="form-group"><label>Address</label><input type="text" name="address" required></div>' +
+        '<div class="form-row">' +
+        '<div class="form-group"><label>City</label><input type="text" name="city" required></div>' +
+        '<div class="form-group"><label>Zip Code</label><input type="text" name="zipCode" required></div>' +
+        '</div>' +
+        '<div class="form-group"><label>Country</label><input type="text" name="country" required></div>' +
+        '<button type="submit" class="btn-primary w-full">Place Order</button>' +
+        '</form></div>' +
+        '<div class="order-summary">' +
+        '<h2 class="text-2xl font-bold mb-4">Order Summary</h2>' +
+        products.map(function(x) { return '<div class="summary-item"><span>' + x.name.replace(/</g,'&lt;') + ' x ' + x.quantity + '</span><span>$' + Number(x.lineTotal).toFixed(2) + '</span></div>'; }).join('') +
+        '<div class="summary-total"><span>Total</span><span>$' + Number(total).toFixed(2) + '</span></div>' +
+        '</div></div>';
+      document.getElementById('checkout-form').onsubmit = function(e) {
+        e.preventDefault();
+        var btn = e.target.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.textContent = 'Placing Order...';
+        var order = { items: products, total: total, date: new Date().toISOString() };
+        try { sessionStorage.setItem('fenty_last_order', JSON.stringify(order)); } catch (_) {}
+        setCart([]);
+        window.location.href = 'order-success.html';
+      };
+    })();
+  </script>
+</body>
+</html>
